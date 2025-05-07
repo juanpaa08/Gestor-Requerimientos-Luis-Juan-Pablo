@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import RequirementCard from '../components/RequirementCard/RequirementCard';
-import styles from './Home.css';
+import ProjectForm from '../components/ProjectForm/ProjectForm';
+import styles from './Home.module.css';
+
 
 const Home = () => {
   const [proyectos, setProyectos] = useState([]);
@@ -22,7 +24,8 @@ const Home = () => {
   }, []);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -35,33 +38,31 @@ const Home = () => {
       return;
     }
 
-    const proyecto = {
-      ...formData,
-      creado_por: 'admin',
-    };
+    const proyecto = { ...formData, creado_por: 'admin' };
+    const url = proyectoEditando
+      ? `http://localhost:5000/api/proyectos/${proyectoEditando.id_proyecto}`
+      : 'http://localhost:5000/api/proyectos';
+    const method = proyectoEditando ? 'PUT' : 'POST';
 
     try {
-      const url = proyectoEditando
-        ? `http://localhost:5000/api/proyectos/${proyectoEditando.id_proyecto}`
-        : 'http://localhost:5000/api/proyectos';
-      const method = proyectoEditando ? 'PUT' : 'POST';
-
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(proyecto),
       });
-      if (!response.ok) {
-        throw new Error('Error en la respuesta del servidor');
-      }
+      if (!response.ok) throw new Error('Error en la respuesta del servidor');
       const data = await response.json();
 
       if (proyectoEditando) {
-        setProyectos(proyectos.map((p) =>
-          p.id_proyecto === proyectoEditando.id_proyecto ? { ...p, ...proyecto } : p
-        ));
+        setProyectos((prev) =>
+          prev.map((p) =>
+            p.id_proyecto === proyectoEditando.id_proyecto
+              ? { ...p, ...proyecto }
+              : p
+          )
+        );
       } else {
-        setProyectos([...proyectos, { id_proyecto: data.id, ...proyecto }]);
+        setProyectos((prev) => [...prev, { id_proyecto: data.id, ...proyecto }]);
       }
       setMostrarFormulario(false);
       setProyectoEditando(null);
@@ -76,60 +77,34 @@ const Home = () => {
     <div className={styles.container}>
       <h1>BrightReq</h1>
       <div className={styles.buttonContainer}>
-        <button className={styles.mainButton} onClick={() => setMostrarFormulario(true)}>
-          Crear Proyectos
+        <button
+          className={styles.mainButton}
+          onClick={() => setMostrarFormulario(true)}
+        >
+          Crear Proyecto
         </button>
-        <button className={styles.mainButton} onClick={() => setMostrarProyectosCreados(true)}>
+        <button
+          className={styles.mainButton}
+          onClick={() => setMostrarProyectosCreados(true)}
+        >
           Editar Proyectos
         </button>
       </div>
+
       {mostrarFormulario && (
-        <div className={styles.formContainer}>
-          <h2>{proyectoEditando ? 'Editar Proyecto' : 'Crear Proyecto'}</h2>
-          <form onSubmit={handleSubmit}>
-            <input
-              type="text"
-              name="nombre"
-              value={formData.nombre}
-              onChange={handleChange}
-              placeholder="Nombre del proyecto"
-              required
-            />
-            <input
-              type="date"
-              name="fecha_inicio"
-              value={formData.fecha_inicio}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="date"
-              name="fecha_fin"
-              value={formData.fecha_fin}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="text"
-              name="descripcion"
-              value={formData.descripcion}
-              onChange={handleChange}
-              placeholder="Descripción"
-            />
-            <button type="submit">Crear</button>
-            <button
-              type="button"
-              onClick={() => {
-                setMostrarFormulario(false);
-                setProyectoEditando(null);
-                setFormData({ nombre: '', descripcion: '', fecha_inicio: '', fecha_fin: '' });
-              }}
-            >
-              Cancelar
-            </button>
-          </form>
-        </div>
+        <ProjectForm
+          formData={formData}
+          onChange={handleChange}
+          onSubmit={handleSubmit}
+          onCancel={() => {
+            setMostrarFormulario(false);
+            setProyectoEditando(null);
+            setFormData({ nombre: '', descripcion: '', fecha_inicio: '', fecha_fin: '' });
+          }}
+          isEditing={Boolean(proyectoEditando)}
+        />
       )}
+
       {mostrarProyectosCreados && (
         <div className={styles.proyectosCreados}>
           <h2>Proyectos Creados</h2>
@@ -152,12 +127,15 @@ const Home = () => {
                   setMostrarProyectosCreados(false);
                 }}
                 onDelete={() => {
-                  fetch(`http://localhost:5000/api/proyectos/${proyecto.id_proyecto}`, {
-                    method: 'DELETE',
-                  })
+                  fetch(
+                    `http://localhost:5000/api/proyectos/${proyecto.id_proyecto}`,
+                    { method: 'DELETE' }
+                  )
                     .then((response) => {
                       if (response.ok) {
-                        setProyectos(proyectos.filter((p) => p.id_proyecto !== proyecto.id_proyecto));
+                        setProyectos((prev) =>
+                          prev.filter((p) => p.id_proyecto !== proyecto.id_proyecto)
+                        );
                       }
                     })
                     .catch((err) => console.error('Error al eliminar:', err));
@@ -167,7 +145,12 @@ const Home = () => {
           ) : (
             <p>No hay proyectos creados.</p>
           )}
-          <button onClick={() => setMostrarProyectosCreados(false)}>Cerrar</button>
+          <button
+            className={styles.mainButton}
+            onClick={() => setMostrarProyectosCreados(false)}
+          >
+            Cerrar
+          </button>
         </div>
       )}
     </div>
