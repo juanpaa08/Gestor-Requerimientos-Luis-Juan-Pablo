@@ -1,3 +1,4 @@
+// src/pages/Login.jsx
 import React, { useState, useContext } from 'react';
 import { useNavigate }                   from 'react-router-dom';
 import { AuthContext }                   from '../context/AuthContext';
@@ -5,13 +6,15 @@ import styles                            from './Login.module.css';
 
 export default function Login() {
   const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');    // ← nuevo estado
   const [role, setRole]         = useState('Gestor');
   const { login }               = useContext(AuthContext);
   const nav                     = useNavigate();
 
   const handleSubmit = e => {
     e.preventDefault();
-    login({ username, role, token: 'abc123' });
+    // pasa la contraseña junto con el resto
+    login({ username, password, role, token: 'abc123' });
     nav('/');
   };
 
@@ -30,6 +33,20 @@ export default function Login() {
               required
             />
           </div>
+
+          {/* Nuevo campo Contraseña */}
+          <div className={styles.formGroup}>
+            <label htmlFor="password">Contraseña</label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+      
 
           <div className={styles.formGroup}>
             <label htmlFor="role">Rol</label>

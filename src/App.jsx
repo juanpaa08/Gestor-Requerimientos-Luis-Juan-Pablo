@@ -1,5 +1,6 @@
 import React, { useContext }                    from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Settings from './pages/Settings';
 
 // Contexto – ahora VIVE en src/context/AuthContext.jsx
 import { AuthProvider, AuthContext } from './context/AuthContext';
@@ -27,6 +28,8 @@ export default function App() {
           {/* RUTAS PÚBLICAS */}
           <Route path="/login"    element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/settings" element={<Settings />} />
+
 
           {/* RUTAS PROTEGIDAS */}
           <Route

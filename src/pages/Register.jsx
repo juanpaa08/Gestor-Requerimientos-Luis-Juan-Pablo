@@ -7,6 +7,9 @@ export default function Register() {
   const [username, setUsername] = useState('');
   const [role, setRole]         = useState('Gestor');
   const nav                     = useNavigate();
+  const [password, setPassword] = useState('');
+   const [confirmarPassword, confirmPassword] = useState ('');
+
 
   const handleSubmit = e => {
     e.preventDefault();
@@ -29,6 +32,32 @@ export default function Register() {
               required
             />
           </div>
+
+          <div className={styles.formGroup}>
+              <label htmlFor="password">Contraseña</label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+              />
+          </div>
+
+          {/*Nuevo campo confirmar contrasena */}
+          <div className={styles.formGroup}>
+            <label htmlFor="confirmarPassword">Confirmar Contraseña</label>
+            <input
+              id="confirmarPassword"
+              type="confirmarPassword"
+              value={confirmarPassword}
+              onChange={e => confirmPassword(e.target.value)}
+              required
+            />
+          </div>
+
+
+
 
           <div className={styles.formGroup}>
             <label htmlFor="role">Rol</label>
