@@ -1,8 +1,9 @@
+// src/pages/Home.jsx
 import React, { useState, useEffect } from 'react';
 import RequirementCard from '../components/RequirementCard/RequirementCard';
 import ProjectForm from '../components/ProjectForm/ProjectForm';
 import styles from './Home.module.css';
-
+import { fetchProyectos, saveProyecto, deleteProyecto } from '../services/proyectos';
 
 const Home = () => {
   const [proyectos, setProyectos] = useState([]);
@@ -13,12 +14,12 @@ const Home = () => {
     descripcion: '',
     fecha_inicio: '',
     fecha_fin: '',
+    status: 'Pendiente', // Nuevo campo
   });
   const [mostrarProyectosCreados, setMostrarProyectosCreados] = useState(false);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/proyectos')
-      .then((response) => response.json())
+    fetchProyectos()
       .then((data) => setProyectos(data))
       .catch((err) => console.error('Error al cargar proyectos:', err));
   }, []);
@@ -39,20 +40,8 @@ const Home = () => {
     }
 
     const proyecto = { ...formData, creado_por: 'admin' };
-    const url = proyectoEditando
-      ? `http://localhost:5000/api/proyectos/${proyectoEditando.id_proyecto}`
-      : 'http://localhost:5000/api/proyectos';
-    const method = proyectoEditando ? 'PUT' : 'POST';
-
     try {
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(proyecto),
-      });
-      if (!response.ok) throw new Error('Error en la respuesta del servidor');
-      const data = await response.json();
-
+      const data = await saveProyecto(proyecto, proyectoEditando?.id_proyecto);
       if (proyectoEditando) {
         setProyectos((prev) =>
           prev.map((p) =>
@@ -66,16 +55,30 @@ const Home = () => {
       }
       setMostrarFormulario(false);
       setProyectoEditando(null);
-      setFormData({ nombre: '', descripcion: '', fecha_inicio: '', fecha_fin: '' });
+      setFormData({ nombre: '', descripcion: '', fecha_inicio: '', fecha_fin: '', status: 'Pendiente' });
     } catch (err) {
       console.error('Error al guardar proyecto:', err);
       alert('No se pudo guardar el proyecto. Asegúrate de que el backend esté corriendo en http://localhost:5000.');
     }
   };
 
+  const handleStatusChange = async (proyectoId, newStatus) => {
+    try {
+      await saveProyecto({ status: newStatus }, proyectoId);
+      setProyectos((prev) =>
+        prev.map((p) =>
+          p.id_proyecto === proyectoId ? { ...p, status: newStatus } : p
+        )
+      );
+    } catch (err) {
+      console.error('Error al actualizar estado:', err);
+      alert('No se pudo actualizar el estado del proyecto.');
+    }
+  };
+
   return (
     <div className={styles.container}>
-      <h1>BrightReq</h1>
+      <h1 className={styles['brightreq-title']}>BrightReq</h1>
       <div className={styles.buttonContainer}>
         <button
           className={styles.mainButton}
@@ -99,7 +102,7 @@ const Home = () => {
           onCancel={() => {
             setMostrarFormulario(false);
             setProyectoEditando(null);
-            setFormData({ nombre: '', descripcion: '', fecha_inicio: '', fecha_fin: '' });
+            setFormData({ nombre: '', descripcion: '', fecha_inicio: '', fecha_fin: '', status: 'Pendiente' });
           }}
           isEditing={Boolean(proyectoEditando)}
         />
@@ -110,37 +113,44 @@ const Home = () => {
           <h2>Proyectos Creados</h2>
           {proyectos.length > 0 ? (
             proyectos.map((proyecto) => (
-              <RequirementCard
-                key={proyecto.id_proyecto}
-                title={proyecto.nombre}
-                description={proyecto.descripcion}
-                status={proyecto.status || 'Sin estado'}
-                onEdit={() => {
-                  setProyectoEditando(proyecto);
-                  setFormData({
-                    nombre: proyecto.nombre,
-                    descripcion: proyecto.descripcion,
-                    fecha_inicio: proyecto.fecha_inicio,
-                    fecha_fin: proyecto.fecha_fin,
-                  });
-                  setMostrarFormulario(true);
-                  setMostrarProyectosCreados(false);
-                }}
-                onDelete={() => {
-                  fetch(
-                    `http://localhost:5000/api/proyectos/${proyecto.id_proyecto}`,
-                    { method: 'DELETE' }
-                  )
-                    .then((response) => {
-                      if (response.ok) {
-                        setProyectos((prev) =>
-                          prev.filter((p) => p.id_proyecto !== proyecto.id_proyecto)
-                        );
-                      }
-                    })
-                    .catch((err) => console.error('Error al eliminar:', err));
-                }}
-              />
+              <div key={proyecto.id_proyecto}>
+                <RequirementCard
+                  title={proyecto.nombre}
+                  description={proyecto.descripcion}
+                  status={proyecto.status || 'Pendiente'}
+                  onEdit={() => {
+                    setProyectoEditando(proyecto);
+                    setFormData({
+                      nombre: proyecto.nombre,
+                      descripcion: proyecto.descripcion,
+                      fecha_inicio: proyecto.fecha_inicio,
+                      fecha_fin: proyecto.fecha_fin,
+                      status: proyecto.status || 'Pendiente',
+                    });
+                    setMostrarFormulario(true);
+                    setMostrarProyectosCreados(false);
+                  }}
+                  onDelete={() => {
+                    deleteProyecto(proyecto.id_proyecto)
+                      .then((response) => {
+                        if (response.ok) {
+                          setProyectos((prev) =>
+                            prev.filter((p) => p.id_proyecto !== proyecto.id_proyecto)
+                          );
+                        }
+                      })
+                      .catch((err) => console.error('Error al eliminar:', err));
+                  }}
+                />
+                <select
+                  value={proyecto.status || 'Pendiente'}
+                  onChange={(e) => handleStatusChange(proyecto.id_proyecto, e.target.value)}
+                >
+                  <option value="Pendiente">Pendiente</option>
+                  <option value="En Progreso">En Progreso</option>
+                  <option value="Completado">Completado</option>
+                </select>
+              </div>
             ))
           ) : (
             <p>No hay proyectos creados.</p>
