@@ -1,56 +1,49 @@
+// src/components/ProjectForm/ProjectForm.jsx
 import React from 'react';
 import styles from './ProjectForm.module.css';
 
-export default function ProjectForm({
-  formData,
-  onChange,
-  onSubmit,
-  onCancel,
-  isEditing
-}) {
+export default function ProjectForm({ formData, onChange, onSubmit, onCancel, isEditing }) {
   return (
     <div className={styles.formContainer}>
-      <h2>{isEditing ? 'Editar Proyecto' : 'Crear Proyecto'}</h2>
       <form onSubmit={onSubmit}>
-        <label htmlFor="nombre">Nombre del proyecto</label>
         <input
-          id="nombre" type="text" name="nombre"
+          type="text"
+          name="nombre"
+          placeholder="Nombre del proyecto"
           value={formData.nombre}
           onChange={onChange}
           required
         />
-
-        <label htmlFor="fecha_inicio">Fecha de inicio</label>
+        <textarea
+          name="descripcion"
+          placeholder="Descripción"
+          value={formData.descripcion}
+          onChange={onChange}
+          required
+        />
         <input
-          id="fecha_inicio" type="date" name="fecha_inicio"
+          type="date"
+          name="fecha_inicio"
           value={formData.fecha_inicio}
           onChange={onChange}
           required
         />
-
-        <label htmlFor="fecha_fin">Fecha de fin</label>
         <input
-          id="fecha_fin" type="date" name="fecha_fin"
+          type="date"
+          name="fecha_fin"
           value={formData.fecha_fin}
           onChange={onChange}
           required
         />
-
-        <label htmlFor="descripcion">Descripción</label>
-        <input
-          id="descripcion" type="text" name="descripcion"
-          value={formData.descripcion}
-          onChange={onChange}
-        />
-
-        <div className={styles.buttons}>
-          <button type="submit">
-            {isEditing ? 'Guardar cambios' : 'Crear'}
-          </button>
-          <button type="button" onClick={onCancel}>
-            Cancelar
-          </button>
-        </div>
+        <select name="status" value={formData.status} onChange={onChange}>
+          <option value="Pendiente">Pendiente</option>
+          <option value="En Progreso">En Progreso</option>
+          <option value="Completado">Completado</option>
+        </select>
+        <button type="submit">{isEditing ? 'Guardar Cambios' : 'Crear Proyecto'}</button>
+        <button type="button" onClick={onCancel}>
+          Cancelar
+        </button>
       </form>
     </div>
   );

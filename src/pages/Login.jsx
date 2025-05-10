@@ -1,27 +1,41 @@
 // src/pages/Login.jsx
 import React, { useState, useContext } from 'react';
-import { useNavigate }                   from 'react-router-dom';
-import { AuthContext }                   from '../context/AuthContext';
-import styles                            from './Login.module.css';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
+import styles from './Login.module.css';
 
 export default function Login() {
   const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');    // ← nuevo estado
-  const [role, setRole]         = useState('Gestor');
-  const { login }               = useContext(AuthContext);
-  const nav                     = useNavigate();
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState('Gestor');
+  const [error, setError] = useState('');
+  const { login } = useContext(AuthContext);
+  const nav = useNavigate();
 
-  const handleSubmit = e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // pasa la contraseña junto con el resto
-    login({ username, password, role, token: 'abc123' });
-    nav('/');
+    try {
+      const response = await fetch('http://localhost:5000/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al iniciar sesión');
+      }
+      login({ username: data.username, role: data.role, token: data.token });
+      nav('/');
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return (
     <div className={styles.container}>
       <div className={styles.card}>
         <h2 className={styles.title}>Iniciar sesión</h2>
+        {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
             <label htmlFor="username">Usuario</label>
@@ -29,31 +43,28 @@ export default function Login() {
               id="username"
               type="text"
               value={username}
-              onChange={e => setUsername(e.target.value)}
+              onChange={(e) => setUsername(e.target.value)}
               required
             />
           </div>
 
-          {/* Nuevo campo Contraseña */}
           <div className={styles.formGroup}>
             <label htmlFor="password">Contraseña</label>
             <input
               id="password"
               type="password"
               value={password}
-              onChange={e => setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
-
-      
 
           <div className={styles.formGroup}>
             <label htmlFor="role">Rol</label>
             <select
               id="role"
               value={role}
-              onChange={e => setRole(e.target.value)}
+              onChange={(e) => setRole(e.target.value)}
             >
               <option>Admin</option>
               <option>Gestor</option>
