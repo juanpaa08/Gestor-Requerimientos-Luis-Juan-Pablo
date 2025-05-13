@@ -1,0 +1,23 @@
+/* Settings.module.css */
+.container {
+    padding: 2rem;
+    max-width: 400px;
+    margin: auto;
+  }
+  .option {
+    margin-top: 1rem;
+    font-size: 1.1rem;
+  }
+  .option label {
+    display: flex;
+    align-items: center;
+  }
+  .option input {
+    margin-right: 0.5rem;
+    transform: scale(1.2);
+  }
+  .labelText {
+    font-weight: 500;
+    color: var(--text);
+  }
+  

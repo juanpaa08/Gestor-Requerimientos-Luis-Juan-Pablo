@@ -1,32 +1,50 @@
 // src/services/proyectos.js
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
-const getAuthToken = () => {
+const API_URL = 'http://localhost:5000/api/proyectos';
+
+function getAuthHeader() {
+  // si guardas el token en localStorage bajo "auth":
   const stored = localStorage.getItem('auth');
-  return stored ? JSON.parse(stored).token : null;
-};
+  if (!stored) return {};
+  const { token } = JSON.parse(stored);
+  return { Authorization: `Bearer ${token}` };
+}
 
-export const fetchProyectos = () =>
-  fetch(`${API_URL}/api/proyectos`, {
-    headers: {
-      Authorization: `Bearer ${getAuthToken()}`,
-    },
-  }).then((res) => res.json());
-
-export const saveProyecto = (proyecto, id) =>
-  fetch(`${API_URL}/api/proyectos${id ? `/${id}` : ''}`, {
-    method: id ? 'PUT' : 'POST',
+export async function fetchProyectos() {
+  const res = await fetch(API_URL, {
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${getAuthToken()}`,
-    },
-    body: JSON.stringify(proyecto),
-  }).then((res) => res.json());
-
-export const deleteProyecto = (id) =>
-  fetch(`${API_URL}/api/proyectos/${id}`, {
-    method: 'DELETE',
-    headers: {
-      Authorization: `Bearer ${getAuthToken()}`,
+      ...getAuthHeader(),
     },
   });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Error ${res.status} al cargar proyectos: ${text}`);
+  }
+  return res.json();
+}
+
+export async function saveProyecto(data, idProyecto) {
+  const url = idProyecto ? `${API_URL}/${idProyecto}` : API_URL;
+  const method = idProyecto ? 'PUT' : 'POST';
+  const res = await fetch(url, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      ...getAuthHeader(),
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`(${res.status}) ${errText}`);
+  }
+  return res.json();
+}
+
+export async function deleteProyecto(idProyecto) {
+  return fetch(`${API_URL}/${idProyecto}`, {
+    method: 'DELETE',
+    headers: getAuthHeader()
+  });
+}

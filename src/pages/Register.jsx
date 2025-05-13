@@ -1,6 +1,7 @@
 // src/pages/Register.jsx
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { UserPlus, Lock } from 'lucide-react';
 import styles from './Register.module.css';
 
 export default function Register() {
@@ -36,48 +37,68 @@ export default function Register() {
   return (
     <div className={styles.container}>
       <div className={styles.card}>
-        <h2 className={styles.title}>Registro</h2>
-        {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
+        <div className={styles.header}>
+          <UserPlus size={32} className={styles.headerIcon} />
+          <h2 className={styles.title}>Registro</h2>
+        </div>
+
+        {error && <p className={styles.errorMessage}>{error}</p>}
+
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
-            <label htmlFor="username">Usuario</label>
+            <label htmlFor="username" className={styles.label}>
+              <UserPlus size={18} className={styles.icon} /> Usuario
+            </label>
             <input
               id="username"
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              placeholder="Ingresa tu usuario"
               required
+              className={styles.input}
             />
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="password">Contraseña</label>
+            <label htmlFor="password" className={styles.label}>
+              <Lock size={18} className={styles.icon} /> Contraseña
+            </label>
             <input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              placeholder="********"
               required
+              className={styles.input}
             />
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="confirmarPassword">Confirmar Contraseña</label>
+            <label htmlFor="confirmarPassword" className={styles.label}>
+              <Lock size={18} className={styles.icon} /> Confirmar Contraseña
+            </label>
             <input
               id="confirmarPassword"
               type="password"
               value={confirmarPassword}
               onChange={(e) => setConfirmarPassword(e.target.value)}
+              placeholder="********"
               required
+              className={styles.input}
             />
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="role">Rol</label>
+            <label htmlFor="role" className={styles.label}>
+              <UserPlus size={18} className={styles.icon} /> Rol
+            </label>
             <select
               id="role"
               value={role}
               onChange={(e) => setRole(e.target.value)}
+              className={styles.select}
             >
               <option>Admin</option>
               <option>Gestor</option>
@@ -89,6 +110,13 @@ export default function Register() {
             Registrar
           </button>
         </form>
+
+        <div className={styles.footer}>
+          <span>¿Ya tienes cuenta?</span>{' '}
+          <Link to="/login" className={styles.registerLink}>
+            Inicia sesión
+          </Link>
+        </div>
       </div>
     </div>
   );

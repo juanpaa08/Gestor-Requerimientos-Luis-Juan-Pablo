@@ -3,9 +3,13 @@ import React, { useState, useEffect } from 'react';
 import RequirementCard from '../components/RequirementCard/RequirementCard';
 import ProjectForm from '../components/ProjectForm/ProjectForm';
 import styles from './Home.module.css';
-import { fetchProyectos, saveProyecto, deleteProyecto } from '../services/proyectos';
+import {
+  fetchProyectos,
+  saveProyecto,
+  deleteProyecto
+} from '../services/proyectos';
 
-const Home = () => {
+export default function Home() {
   const [proyectos, setProyectos] = useState([]);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [proyectoEditando, setProyectoEditando] = useState(null);
@@ -14,14 +18,16 @@ const Home = () => {
     descripcion: '',
     fecha_inicio: '',
     fecha_fin: '',
-    status: 'Pendiente', // Nuevo campo
+    status: 'Pendiente'
   });
-  const [mostrarProyectosCreados, setMostrarProyectosCreados] = useState(false);
 
   useEffect(() => {
     fetchProyectos()
       .then((data) => setProyectos(data))
-      .catch((err) => console.error('Error al cargar proyectos:', err));
+      .catch((err) => {
+        console.error(err);
+        setProyectos([]);
+      });
   }, []);
 
   const handleChange = (e) => {
@@ -31,140 +37,107 @@ const Home = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const fechaInicio = new Date(formData.fecha_inicio);
-    const fechaFin = new Date(formData.fecha_fin);
-
-    if (fechaFin < fechaInicio) {
-      alert('La fecha de fin no puede ser anterior a la fecha de inicio');
-      return;
+    const inicio = new Date(formData.fecha_inicio);
+    const fin = new Date(formData.fecha_fin);
+    if (fin < inicio) {
+      return alert('Fecha de fin no puede ser anterior a inicio');
     }
 
-    const proyecto = { ...formData, creado_por: 'admin' };
     try {
-      const data = await saveProyecto(proyecto, proyectoEditando?.id_proyecto);
+      const saved = await saveProyecto(
+        { ...formData, creado_por: 'admin' },
+        proyectoEditando?.id_proyecto
+      );
+
       if (proyectoEditando) {
         setProyectos((prev) =>
           prev.map((p) =>
             p.id_proyecto === proyectoEditando.id_proyecto
-              ? { ...p, ...proyecto }
+              ? { ...p, ...formData }
               : p
           )
         );
       } else {
-        setProyectos((prev) => [...prev, { id_proyecto: data.id, ...proyecto }]);
+        setProyectos((prev) => [
+          ...prev,
+          { id_proyecto: saved.id, ...formData }
+        ]);
       }
+
       setMostrarFormulario(false);
       setProyectoEditando(null);
-      setFormData({ nombre: '', descripcion: '', fecha_inicio: '', fecha_fin: '', status: 'Pendiente' });
+      setFormData({
+        nombre: '',
+        descripcion: '',
+        fecha_inicio: '',
+        fecha_fin: '',
+        status: 'Pendiente'
+      });
     } catch (err) {
       console.error('Error al guardar proyecto:', err);
-      alert('No se pudo guardar el proyecto. Asegúrate de que el backend esté corriendo en http://localhost:5000.');
+      alert(`No se pudo guardar el proyecto:\n${err.message}`);
     }
   };
 
-  const handleStatusChange = async (proyectoId, newStatus) => {
-    try {
-      await saveProyecto({ status: newStatus }, proyectoId);
-      setProyectos((prev) =>
-        prev.map((p) =>
-          p.id_proyecto === proyectoId ? { ...p, status: newStatus } : p
-        )
-      );
-    } catch (err) {
-      console.error('Error al actualizar estado:', err);
-      alert('No se pudo actualizar el estado del proyecto.');
-    }
+  const handleDelete = async (id) => {
+    await deleteProyecto(id);
+    setProyectos((prev) => prev.filter((p) => p.id_proyecto !== id));
   };
 
   return (
     <div className={styles.container}>
-      <h1 className={styles['brightreq-title']}>BrightReq</h1>
-      <div className={styles.buttonContainer}>
+      <h1 className={styles.title}>BrightReq</h1>
+
+      <div className={styles.buttonsRow}>
         <button
           className={styles.mainButton}
-          onClick={() => setMostrarFormulario(true)}
+          onClick={() => {
+            setProyectoEditando(null);
+            setMostrarFormulario(true);
+          }}
         >
           Crear Proyecto
         </button>
         <button
-          className={styles.mainButton}
-          onClick={() => setMostrarProyectosCreados(true)}
+          className={styles.mainButtonOutline}
+          onClick={() => setMostrarFormulario(false)}
         >
           Editar Proyectos
         </button>
       </div>
 
-      {mostrarFormulario && (
+      {mostrarFormulario ? (
         <ProjectForm
           formData={formData}
           onChange={handleChange}
           onSubmit={handleSubmit}
-          onCancel={() => {
-            setMostrarFormulario(false);
-            setProyectoEditando(null);
-            setFormData({ nombre: '', descripcion: '', fecha_inicio: '', fecha_fin: '', status: 'Pendiente' });
-          }}
+          onCancel={() => setMostrarFormulario(false)}
           isEditing={Boolean(proyectoEditando)}
         />
-      )}
-
-      {mostrarProyectosCreados && (
-        <div className={styles.proyectosCreados}>
-          <h2>Proyectos Creados</h2>
-          {proyectos.length > 0 ? (
-            proyectos.map((proyecto) => (
-              <div key={proyecto.id_proyecto}>
-                <RequirementCard
-                  title={proyecto.nombre}
-                  description={proyecto.descripcion}
-                  status={proyecto.status || 'Pendiente'}
-                  onEdit={() => {
-                    setProyectoEditando(proyecto);
-                    setFormData({
-                      nombre: proyecto.nombre,
-                      descripcion: proyecto.descripcion,
-                      fecha_inicio: proyecto.fecha_inicio,
-                      fecha_fin: proyecto.fecha_fin,
-                      status: proyecto.status || 'Pendiente',
-                    });
-                    setMostrarFormulario(true);
-                    setMostrarProyectosCreados(false);
-                  }}
-                  onDelete={() => {
-                    deleteProyecto(proyecto.id_proyecto)
-                      .then((response) => {
-                        if (response.ok) {
-                          setProyectos((prev) =>
-                            prev.filter((p) => p.id_proyecto !== proyecto.id_proyecto)
-                          );
-                        }
-                      })
-                      .catch((err) => console.error('Error al eliminar:', err));
-                  }}
-                />
-                <select
-                  value={proyecto.status || 'Pendiente'}
-                  onChange={(e) => handleStatusChange(proyecto.id_proyecto, e.target.value)}
-                >
-                  <option value="Pendiente">Pendiente</option>
-                  <option value="En Progreso">En Progreso</option>
-                  <option value="Completado">Completado</option>
-                </select>
-              </div>
-            ))
-          ) : (
-            <p>No hay proyectos creados.</p>
-          )}
-          <button
-            className={styles.mainButton}
-            onClick={() => setMostrarProyectosCreados(false)}
-          >
-            Cerrar
-          </button>
+      ) : (
+        <div className={styles.projectList}>
+          {proyectos.map((p) => (
+            <RequirementCard
+              key={p.id_proyecto}
+              title={p.nombre}
+              description={p.descripcion}
+              status={p.status}
+              onEdit={() => {
+                setProyectoEditando(p);
+                setFormData({
+                  nombre: p.nombre,
+                  descripcion: p.descripcion,
+                  fecha_inicio: p.fecha_inicio,
+                  fecha_fin: p.fecha_fin,
+                  status: p.status
+                });
+                setMostrarFormulario(true);
+              }}
+              onDelete={() => handleDelete(p.id_proyecto)}
+            />
+          ))}
         </div>
       )}
     </div>
   );
-};
-
-export default Home;
+}

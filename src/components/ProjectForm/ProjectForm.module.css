@@ -1,62 +1,164 @@
-/* src/components/ProjectForm/ProjectForm.module.css */
+/* overlay cubre la pantalla pero NO bloquea eventos */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 1000;
+  pointer-events: none;
+}
 
-.formContainer {
-    margin-top: 1rem;
-    padding: 1.5rem;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    width: 320px;
-    background: #fafafa;
+/* tarjeta emergente que SÍ recibe eventos */
+.card {
+  pointer-events: auto;
+  background: #fff;
+  width: 100%;
+  max-width: 500px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  z-index: 1001;
+}
+
+/* Cabecera degradada */
+.header {
+  background: linear-gradient(135deg, #3498db, #6dd5fa);
+  padding: 1.5rem;
+  text-align: center;
+}
+.headerIcon {
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+.title {
+  margin: 0;
+  font-size: 1.8rem;
+  color: #fff;
+}
+
+/* Formulario interior */
+.form {
+  padding: 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Grupos de campos */
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Fechas al lado */
+.dateRow {
+  display: flex;
+  gap: 1rem;
+}
+@media (max-width: 480px) {
+  .dateRow {
+    flex-direction: column;
   }
-  
-  .formContainer h2 {
-    margin-bottom: 1rem;
-    text-align: center;
-  }
-  
-  .formContainer label {
-    display: block;
-    margin: 0.5rem 0 0.25rem;
-    font-weight: bold;
-  }
-  
-  .formContainer input {
-    display: block;
-    width: 100%;
-    padding: 0.5rem;
-    margin-bottom: 0.75rem;
-    border: 1px solid #bbb;
-    border-radius: 4px;
-  }
-  
-  .buttons {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-  }
-  
-  .buttons button {
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .buttons button[type="submit"] {
-    background-color: #4caf50;
-    color: #fff;
-  }
-  
-  .buttons button[type="submit"]:hover {
-    background-color: #43a047;
-  }
-  
-  .buttons button[aria-label="Cancelar"] {
-    background-color: #f44336;
-    color: #fff;
-  }
-  
-  .buttons button[aria-label="Cancelar"]:hover {
-    background-color: #d32f2f;
-  }
-  
+}
+
+/* Etiqueta */
+.label {
+  font-weight: 500;
+  color: #2c3e50;
+  margin-bottom: 0.3rem;
+}
+
+/* Inputs y textarea */
+.input,
+.textarea {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #ccd1d9;
+  border-radius: 6px;
+  background: #f7f9fb;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.textarea {
+  resize: vertical;
+}
+.input:focus,
+.textarea:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+/* Select estilizado */
+.select {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #ccd1d9;
+  border-radius: 6px;
+  appearance: none;
+  background: url("data:image/svg+xml,%3Csvg fill='none' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5H7z' fill='%2334495e'/%3E%3C/svg%3E") no-repeat right 1rem center;
+  background-size: 16px;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+/* Botones */
+.buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+/* Botón crear/guardar */
+.submitButton {
+  background-color: #3498db;
+  color: #fff;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+.submitButton:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+}
+
+/* Botón cancelar */
+.cancelButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: transparent;
+  color: #e74c3c;
+  border: 1px solid #e74c3c;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+.cancelIcon {
+  color: #e74c3c;
+}
+.cancelButton:hover {
+  background-color: #e74c3c;
+  color: #fff;
+}

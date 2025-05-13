@@ -1,60 +1,79 @@
+/* src/pages/Home.module.css */
+
+/* Contenedor principal */
 .container {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: calc(100vh - 60px);
+  background: #f4f7fa;
   padding: 2rem;
 }
 
-.buttonContainer {
-  margin-top: 1rem;
+/* Título grande */
+.title {
+  margin: 0;
+  font-size: 2.5rem;
+  color: #2c3e50;
+  font-weight: 600;
+  margin-bottom: 2rem;
+}
+
+/* Fila de botones */
+.buttonsRow {
   display: flex;
-  justify-content: center;
   gap: 1rem;
+  margin-bottom: 2rem;
 }
 
+/* Botones comunes */
+.mainButton,
+.mainButtonOutline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+/* Botón sólido azul */
 .mainButton {
-  padding: 1.5rem 2rem;
-  font-size: 1.2rem;
-  border: 3px solid #4caf50; /* Borde verde */
-  background-color: white;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.mainButton:hover {
-  background-color: #e0e0e0;
-}
-
-.formContainer {
-  margin-top: 1rem;
-  padding: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  width: 300px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.formContainer input {
-  display: block;
-  margin: 0.5rem 0;
-  padding: 0.5rem;
-  width: 100%;
-}
-
-.formContainer button {
-  padding: 0.5rem 1rem;
-  margin: 0 0.5rem;
+  background-color: #3498db;
+  color: #fff;
   border: none;
-  border-radius: 4px;
-  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+.mainButton:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
 }
 
-.proyectosCreados {
-  margin-top: 1rem;
-  padding: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  width: 80%;
-  margin-left: auto;
-  margin-right: auto;
+/* Botón outline */
+.mainButtonOutline {
+  background-color: #fff;
+  color: #3498db;
+  border: 2px solid #3498db;
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+}
+.mainButtonOutline:hover {
+  background-color: rgba(52, 152, 219, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Lista de tarjetas de proyectos */
+.projectList {
+  width: 100%;
+  max-width: 960px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Asegura que el modal ProjectForm esté encima */
+:global(.overlay) {
+  z-index: 999;
 }

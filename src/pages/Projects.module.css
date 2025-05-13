@@ -1,0 +1,58 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  background: #f4f7fa;
+  min-height: calc(100vh - 60px);
+}
+
+/* Header degradado */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #3498db, #6dd5fa);
+  padding: 1rem 2rem;
+  color: #fff;
+}
+.headerTitle {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+/* Botón Crear Proyecto */
+.primaryButton {
+  background: #fff;
+  color: #3498db;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.primaryButton:hover {
+  background: #ecf4fb;
+}
+
+/* Filtro */
+.filterRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+}
+.select {
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ccd1d9;
+  background: #fff;
+}
+
+/* Grid de proyectos */
+.projectList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.5rem;
+  padding: 1rem 2rem;
+}
+ 

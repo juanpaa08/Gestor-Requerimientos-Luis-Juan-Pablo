@@ -1,73 +1,132 @@
-/* Login.module.css */
+/* src/pages/Register.module.css */
+
 .container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: calc(100vh - 60px); /* deja espacio para el navbar */
-    background-color: #f4f6f8;
-    padding: 2rem;
-    margin-left: 200px;
-    margin-right: 200px;
-  }
-  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 60px);
+  background: #eef2f7;
+  padding: 2rem;
+}
+
+.card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 400px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.header {
+  background: linear-gradient(135deg, #27ae60, #6dd5fa);
+  padding: 1.5rem;
+  text-align: center;
+  color: #fff;
+}
+
+.headerIcon {
+  margin-bottom: 0.5rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.errorMessage {
+  color: #e74c3c;
+  text-align: center;
+  margin: 1rem;
+  font-weight: 500;
+}
+
+form {
+  padding: 1.5rem 2rem;
+}
+
+.formGroup {
+  margin-bottom: 1.25rem;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  color: #34495e;
+  margin-bottom: 0.5rem;
+}
+
+.icon {
+  margin-right: 0.5rem;
+  color: #27ae60;
+}
+
+.input,
+.select {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #ccd1d9;
+  border-radius: 6px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input:focus,
+.select:focus {
+  outline: none;
+  border-color: #27ae60;
+  box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.2);
+}
+
+.select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg fill='none' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5H7z' fill='%2334495e'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+}
+
+.button {
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+  background-color: #27ae60;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.button:hover {
+  background-color: #219150;
+  transform: translateY(-2px);
+}
+
+.footer {
+  text-align: center;
+  padding: 1rem 0;
+  background: #f7f9fc;
+  border-top: 1px solid #e0e6ed;
+}
+
+.registerLink {
+  color: #2980b9;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.registerLink:hover {
+  text-decoration: underline;
+}
+
+/* Responsive para pantallas muy estrechas */
+@media (max-width: 360px) {
   .card {
-    background: #fff;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    width: 100%;
-    max-width: 360px;
+    margin: 0 1rem;
   }
-  
-  .title {
-    margin-bottom: 1.5rem;
-    text-align: center;
-    font-size: 1.8rem;
-    color: #333;
-  }
-  
-  .formGroup {
-    margin-bottom: 1.25rem;
-  }
-  
-  .formGroup label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: #555;
-  }
-  
-  .formGroup input,
-  .formGroup select {
-    width: 100%;
-    padding: 0.6rem 0.75rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    transition: border-color 0.2s;
-  }
-  
-  .formGroup input:focus,
-  .formGroup select:focus {
-    outline: none;
-    border-color: #4caf50;
-  }
-  
-  .button {
-    width: 100%;
-    padding: 0.75rem;
-    font-size: 1rem;
-    background-color: #4caf50;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.2s;
-  }
-  
-  .button:hover {
-    background-color: #43a047;
-  }
-  
+}

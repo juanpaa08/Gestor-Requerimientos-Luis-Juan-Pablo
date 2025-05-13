@@ -1,73 +1,169 @@
-/* Login.module.css */
+/* src/pages/Login.module.css */
+
+/* Aplicamos box-sizing a todos los elementos para evitar overflow inesperado */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Contenedor principal */
 .container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: calc(100vh - 60px); /* deja espacio para el navbar */
-    background-color: #f4f6f8;
-    padding: 2rem;
-    margin-left: 200px;
-    margin-right: 200px;
-  }
-  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 60px); /* deja espacio para el navbar */
+  background: #eef2f7;
+  padding: 2rem;
+}
+
+/* Tarjeta */
+.card {
+  background: #fff;
+  width: 100%;
+  max-width: 380px;      /* Ancho máximo fijo */
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header degradado */
+.header {
+  background: linear-gradient(135deg, #2980b9, #6dd5fa);
+  padding: 1.5rem;
+  text-align: center;
+  color: #fff;
+}
+
+/* Icono */
+.headerIcon {
+  margin-bottom: 0.5rem;
+}
+
+/* Título */
+.title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+/* Mensaje de error */
+.errorMessage {
+  color: #e74c3c;
+  text-align: center;
+  margin: 1rem;
+  font-weight: 500;
+}
+
+/* Formulario */
+form {
+  padding: 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Grupo de campo */
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Etiqueta con icono */
+.label {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  color: #34495e;
+  margin-bottom: 0.5rem;
+}
+
+.icon {
+  margin-right: 0.5rem;
+  color: #2980b9;
+}
+
+/* Inputs y Select centrados y con ancho máximo */
+.input,
+.select {
+  width: 100%;
+  /* Ya no hace falta max-width aquí, hereda el width del form */
+  padding: 0.65rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #ccd1d9;
+  border-radius: 6px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background: #f0f6ff;
+}
+
+/* Focus */
+.input:focus,
+.select:focus {
+  outline: none;
+  border-color: #2980b9;
+  box-shadow: 0 0 0 3px rgba(41, 128, 185, 0.2);
+}
+
+/* Placeholder opcional centrado */
+.input::placeholder {
+  color: #7f8c8d;
+  text-align: left;
+}
+
+/* Flecha del select */
+.select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg fill='none' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5H7z' fill='%2334495e'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 16px;
+  padding-right: 2.5rem; /* espacio para la flecha */
+}
+
+/* Botón */
+.button {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #2980b9;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  align-self: center;
+  margin-top: 0.5rem;
+}
+
+.button:hover {
+  background-color: #2471a3;
+  transform: translateY(-2px);
+}
+
+/* Footer con enlace */
+.footer {
+  text-align: center;
+  padding: 1rem;
+  background: #f7f9fc;
+  border-top: 1px solid #e0e6ed;
+}
+
+.registerLink {
+  color: #2980b9;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.registerLink:hover {
+  text-decoration: underline;
+}
+
+/* Ajustes para móviles muy estrechos */
+@media (max-width: 360px) {
   .card {
-    background: #fff;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    width: 100%;
-    max-width: 360px;
+    margin: 0 1rem;
   }
-  
-  .title {
-    margin-bottom: 1.5rem;
-    text-align: center;
-    font-size: 1.8rem;
-    color: #333;
-  }
-  
-  .formGroup {
-    margin-bottom: 1.25rem;
-  }
-  
-  .formGroup label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: #555;
-  }
-  
-  .formGroup input,
-  .formGroup select {
-    width: 100%;
-    padding: 0.6rem 0.75rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    transition: border-color 0.2s;
-  }
-  
-  .formGroup input:focus,
-  .formGroup select:focus {
-    outline: none;
-    border-color: #4caf50;
-  }
-  
-  .button {
-    width: 100%;
-    padding: 0.75rem;
-    font-size: 1rem;
-    background-color: #4caf50;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.2s;
-  }
-  
-  .button:hover {
-    background-color: #43a047;
-  }
-  
+}

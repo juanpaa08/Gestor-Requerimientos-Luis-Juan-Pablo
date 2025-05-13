@@ -1,75 +1,147 @@
-// src/pages/Projects.jsx
 import React, { useState, useEffect } from 'react';
 import RequirementCard from '../components/RequirementCard/RequirementCard';
-import { fetchProyectos, saveProyecto } from '../services/proyectos';
+import ProjectForm from '../components/ProjectForm/ProjectForm';
 import styles from './Projects.module.css';
+import {
+  fetchProyectos,
+  saveProyecto,
+  deleteProyecto
+} from '../services/proyectos';
 
 export default function Projects() {
   const [proyectos, setProyectos] = useState([]);
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [proyectoEditando, setProyectoEditando] = useState(null);
+  const [formData, setFormData] = useState({
+    nombre: '',
+    descripcion: '',
+    fecha_inicio: '',
+    fecha_fin: '',
+    status: 'Pendiente'
+  });
   const [filtroEstado, setFiltroEstado] = useState('Todos');
 
   useEffect(() => {
     fetchProyectos()
       .then((data) => setProyectos(data))
-      .catch((err) => console.error('Error al cargar proyectos:', err));
+      .catch((err) => {
+        console.error(err);
+        setProyectos([]);
+      });
   }, []);
 
-  const handleStatusChange = async (proyectoId, newStatus) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (new Date(formData.fecha_fin) < new Date(formData.fecha_inicio)) {
+      return alert('La fecha de fin no puede ser anterior a la de inicio');
+    }
     try {
-      await saveProyecto({ status: newStatus }, proyectoId);
-      setProyectos((prev) =>
-        prev.map((p) =>
-          p.id_proyecto === proyectoId ? { ...p, status: newStatus } : p
-        )
+      const saved = await saveProyecto(
+        { ...formData, creado_por: 'admin' },
+        proyectoEditando?.id_proyecto
       );
+      if (proyectoEditando) {
+        setProyectos((prev) =>
+          prev.map((p) =>
+            p.id_proyecto === proyectoEditando.id_proyecto
+              ? { ...p, ...formData }
+              : p
+          )
+        );
+      } else {
+        setProyectos((prev) => [
+          ...prev,
+          { id_proyecto: saved.id, ...formData }
+        ]);
+      }
+      setMostrarFormulario(false);
+      setProyectoEditando(null);
+      setFormData({
+        nombre: '',
+        descripcion: '',
+        fecha_inicio: '',
+        fecha_fin: '',
+        status: 'Pendiente'
+      });
     } catch (err) {
-      console.error('Error al actualizar estado:', err);
-      alert('No se pudo actualizar el estado del proyecto.');
+      console.error(err);
+      alert(`No se pudo guardar el proyecto:\n${err.message}`);
     }
   };
 
-  const proyectosFiltrados = filtroEstado === 'Todos'
-    ? proyectos
-    : proyectos.filter((proyecto) => proyecto.status === filtroEstado);
+  const handleDelete = async (id) => {
+    await deleteProyecto(id);
+    setProyectos((prev) => prev.filter((p) => p.id_proyecto !== id));
+  };
 
   return (
     <div className={styles.container}>
-      <h1>Lista de Proyectos</h1>
-      <div>
-        <label>Filtrar por estado: </label>
+      <header className={styles.header}>
+        <h1 className={styles.headerTitle}>📋 Editar Proyectos</h1>
+        <button
+          className={styles.primaryButton}
+          onClick={() => {
+            setProyectoEditando(null);
+            setMostrarFormulario(true);
+          }}
+        >
+          + Crear Proyecto
+        </button>
+      </header>
+
+      <div className={styles.filterRow}>
+        <label>Filtrar por estado:</label>
         <select
           value={filtroEstado}
           onChange={(e) => setFiltroEstado(e.target.value)}
+          className={styles.select}
         >
-          <option value="Todos">Todos</option>
-          <option value="Pendiente">Pendiente</option>
-          <option value="En Progreso">En Progreso</option>
-          <option value="Completado">Completado</option>
+          <option>Todos</option>
+          <option>Pendiente</option>
+          <option>En Progreso</option>
+          <option>Completado</option>
         </select>
       </div>
-      <div className={styles.projectList}>
-        {proyectosFiltrados.length > 0 ? (
-          proyectosFiltrados.map((proyecto) => (
-            <div key={proyecto.id_proyecto}>
+
+      {mostrarFormulario ? (
+        <ProjectForm
+          formData={formData}
+          onChange={handleChange}
+          onSubmit={handleSubmit}
+          onCancel={() => setMostrarFormulario(false)}
+          isEditing={Boolean(proyectoEditando)}
+        />
+      ) : (
+        <div className={styles.projectList}>
+          {proyectos
+            .filter(p => filtroEstado === 'Todos' || p.status === filtroEstado)
+            .map((p) => (
               <RequirementCard
-                title={proyecto.nombre}
-                description={proyecto.descripcion}
-                status={proyecto.status || 'Pendiente'}
+                key={p.id_proyecto}
+                title={p.nombre}
+                description={p.descripcion}
+                status={p.status}
+                onEdit={() => {
+                  setProyectoEditando(p);
+                  setFormData({
+                    nombre: p.nombre,
+                    descripcion: p.descripcion,
+                    fecha_inicio: p.fecha_inicio,
+                    fecha_fin: p.fecha_fin,
+                    status: p.status
+                  });
+                  setMostrarFormulario(true);
+                }}
+                onDelete={() => handleDelete(p.id_proyecto)}
               />
-              <select
-                value={proyecto.status || 'Pendiente'}
-                onChange={(e) => handleStatusChange(proyecto.id_proyecto, e.target.value)}
-              >
-                <option value="Pendiente">Pendiente</option>
-                <option value="En Progreso">En Progreso</option>
-                <option value="Completado">Completado</option>
-              </select>
-            </div>
-          ))
-        ) : (
-          <p>No hay proyectos con el estado seleccionado.</p>
-        )}
-      </div>
+            ))}
+        </div>
+      )}
     </div>
-  );
+);
 }
