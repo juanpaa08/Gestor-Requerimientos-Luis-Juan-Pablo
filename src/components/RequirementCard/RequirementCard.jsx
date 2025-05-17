@@ -1,8 +1,11 @@
 import React from 'react';
 import { Edit2, Trash2 } from 'lucide-react';
 import styles from './RequirementCard.module.css';
+import { useNavigate } from 'react-router-dom';
 
-export default function RequirementCard({ title, description, status, onEdit, onDelete }) {
+export default function RequirementCard({ title, description, status, onEdit, onDelete, id }) {
+  
+   const navigate = useNavigate();
   // Mapea el estado a un color de badge
   const statusClass = {
     Pendiente: styles.pendiente,
@@ -12,7 +15,14 @@ export default function RequirementCard({ title, description, status, onEdit, on
 
   return (
     <div className={styles.card}>
-      <h3 className={styles.title}>{title}</h3>
+        <h3 
+        className={styles.title} 
+        onClick={() => navigate(`/projects/${id}`)}
+        style={{ cursor: 'pointer' }} // Opcional: para que el cursor cambie a pointer
+        >
+      
+      {title}
+      </h3>
       <p className={styles.desc}>{description || 'Sin descripción'}</p>
       <span className={`${styles.badge} ${statusClass}`}>{status}</span>
 

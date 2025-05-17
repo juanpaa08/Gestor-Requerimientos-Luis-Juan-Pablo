@@ -1,0 +1,73 @@
+/* src/pages/ProjectDetails.module.css */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  background: #f5f8fb; /* Fondo ligeramente más claro que Projects */
+  min-height: calc(100vh - 70px); /* Ajustado para Navbar */
+}
+
+/* Header con degradado similar pero con tonos más suaves */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #2e86c1, #7ee8fa); /* Azul más suave */
+  padding: 1.2rem 2.2rem; /* Más padding para mayor espacio */
+  color: #fff;
+}
+.headerTitle {
+  margin: 0;
+  font-size: 1.6rem; /* Ligeramente más grande */
+}
+
+/* Botón Crear Requerimiento */
+.primaryButton {
+  background: #fff;
+  color: #2e86c1; /* Coincide con el degradado */
+  border: none;
+  border-radius: 8px; /* Bordes más redondeados */
+  padding: 0.6rem 1.2rem; /* Botón un poco más grande */
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+.primaryButton:hover {
+  background: #e9f3fb; /* Fondo más claro al hover */
+  transform: translateY(-2px);
+}
+
+/* Filtro (opcional, si decides agregarlo) */
+.filterRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1.2rem 2.2rem;
+}
+.select {
+  padding: 0.6rem;
+  border-radius: 6px; /* Bordes más redondeados */
+  border: 1px solid #ccd1d9;
+  background: #fff;
+  font-size: 0.95rem;
+}
+
+/* Grid de requerimientos */
+.requirementList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); /* Tarjetas más anchas */
+  gap: 1.8rem; /* Mayor separación */
+  padding: 1.2rem 2.2rem;
+}
+
+/* Responsive para pantallas pequeñas */
+@media (max-width: 768px) {
+  .requirementList {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+  .header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+}

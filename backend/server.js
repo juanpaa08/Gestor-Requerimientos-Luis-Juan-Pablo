@@ -1,13 +1,20 @@
-// backend/server.js
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const app = express();
+const requerimientosRouter = require('./routes/requerimientos');
+const authenticateToken = require('./middleware/auth');
 
-app.use(cors());
+// Configuración CORS
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
+app.use('/api/requerimientos', requerimientosRouter);
 
 const connection = mysql.createConnection({
   host: 'localhost',
@@ -24,7 +31,7 @@ connection.connect((err) => {
   console.log('Conectado a MySQL');
 });
 
-const JWT_SECRET = 'tu_secreto_seguro'; // Cambia esto por una clave segura en producción
+const JWT_SECRET = 'tu_secreto_seguro';
 
 // Ruta para registro
 app.post('/api/register', async (req, res) => {
@@ -73,19 +80,7 @@ app.post('/api/login', (req, res) => {
   );
 });
 
-// Middleware para proteger rutas
-const authenticateToken = (req, res, next) => {
-  const token = req.headers['authorization']?.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'No autorizado' });
-
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ error: 'Token inválido' });
-    req.user = user;
-    next();
-  });
-};
-
-// Rutas para proyectos (protegidas)
+// Rutas para proyectos
 app.get('/api/proyectos', authenticateToken, (req, res) => {
   connection.query('SELECT * FROM Proyectos', (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -105,6 +100,7 @@ app.post('/api/proyectos', authenticateToken, (req, res) => {
   );
 });
 
+// Ruta PUT para editar proyectos (NUEVA)
 app.put('/api/proyectos/:id', authenticateToken, (req, res) => {
   const { id } = req.params;
   const { nombre, descripcion, fecha_inicio, fecha_fin, status } = req.body;
@@ -113,7 +109,9 @@ app.put('/api/proyectos/:id', authenticateToken, (req, res) => {
     [nombre, descripcion, fecha_inicio, fecha_fin, status, id],
     (err, results) => {
       if (err) return res.status(500).json({ error: err.message });
-      if (results.affectedRows === 0) return res.status(404).json({ error: 'Proyecto no encontrado' });
+      if (results.affectedRows === 0) {
+        return res.status(404).json({ error: 'Proyecto no encontrado' });
+      }
       res.json({ message: 'Proyecto actualizado' });
     }
   );
@@ -128,5 +126,5 @@ app.delete('/api/proyectos/:id', authenticateToken, (req, res) => {
   });
 });
 
-const PORT = 5000; // O process.env.PORT || 5000 si usas dotenv
+const PORT = 5000;
 app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));

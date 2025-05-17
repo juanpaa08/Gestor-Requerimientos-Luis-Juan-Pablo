@@ -123,6 +123,7 @@ export default function Projects() {
             .map((p) => (
               <RequirementCard
                 key={p.id_proyecto}
+                id={p.id_proyecto}
                 title={p.nombre}
                 description={p.descripcion}
                 status={p.status}

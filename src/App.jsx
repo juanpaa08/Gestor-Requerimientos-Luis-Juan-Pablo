@@ -11,6 +11,7 @@ import Login     from './pages/Login';
 import Register  from './pages/Register';
 import Home      from './pages/Home';
 import Projects  from './pages/Projects';
+import ProjectDetails from './pages/ProjectDetails';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useContext(AuthContext);
@@ -47,6 +48,14 @@ export default function App() {
                 <Projects />
               </PrivateRoute>
             }
+          />
+          <Route
+            path="/projects/:idProyecto"
+            element={
+              <PrivateRoute>
+                <ProjectDetails />
+              </PrivateRoute>
+             }
           />
         </Routes>
       </BrowserRouter>
