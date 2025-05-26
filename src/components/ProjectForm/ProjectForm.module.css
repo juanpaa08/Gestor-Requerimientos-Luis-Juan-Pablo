@@ -1,4 +1,6 @@
-/* overlay cubre la pantalla pero NO bloquea eventos */
+/* src/components/ProjectForm/ProjectForm.module.css */
+
+/* Overlay cubre la pantalla pero NO bloquea eventos */
 .overlay {
   position: fixed;
   top: 0;
@@ -14,7 +16,7 @@
   pointer-events: none;
 }
 
-/* tarjeta emergente que SÍ recibe eventos */
+/* Tarjeta emergente que SÍ recibe eventos */
 .card {
   pointer-events: auto;
   background: #fff;
@@ -22,7 +24,8 @@
   max-width: 500px;
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  max-height: 80vh; /* Limita la altura máxima al 80% de la pantalla */
+  overflow-y: auto; /* Permite desplazamiento vertical si es necesario */
   display: flex;
   flex-direction: column;
   z-index: 1001;
@@ -34,10 +37,12 @@
   padding: 1.5rem;
   text-align: center;
 }
+
 .headerIcon {
   color: #fff;
   margin-bottom: 0.5rem;
 }
+
 .title {
   margin: 0;
   font-size: 1.8rem;
@@ -50,6 +55,7 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  flex: 1; /* Permite que el formulario ocupe el espacio disponible */
 }
 
 /* Grupos de campos */
@@ -63,6 +69,7 @@
   display: flex;
   gap: 1rem;
 }
+
 @media (max-width: 480px) {
   .dateRow {
     flex-direction: column;
@@ -87,9 +94,11 @@
   background: #f7f9fb;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
+
 .textarea {
   resize: vertical;
 }
+
 .input:focus,
 .textarea:focus {
   outline: none;
@@ -110,6 +119,7 @@
   cursor: pointer;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
+
 .select:focus {
   outline: none;
   border-color: #3498db;
@@ -122,6 +132,11 @@
   justify-content: flex-end;
   gap: 0.75rem;
   margin-top: 0.5rem;
+  position: sticky; /* Mantiene los botones visibles al final del formulario */
+  bottom: 0;
+  background-color: #fff; /* Fondo para evitar que el contenido del formulario se vea detrás */
+  padding: 0.5rem 0;
+  z-index: 1; /* Asegura que los botones estén encima de otros elementos */
 }
 
 /* Botón crear/guardar */
@@ -136,6 +151,7 @@
   cursor: pointer;
   transition: background-color 0.2s, transform 0.1s;
 }
+
 .submitButton:hover {
   background-color: #2980b9;
   transform: translateY(-2px);
@@ -155,10 +171,30 @@
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s;
 }
+
 .cancelIcon {
   color: #e74c3c;
 }
+
 .cancelButton:hover {
   background-color: #e74c3c;
   color: #fff;
+}
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 480px) {
+  .card {
+    max-width: 100%;
+    margin: 0 1rem;
+  }
+
+  .buttons {
+    flex-direction: column;
+  }
+
+  .submitButton,
+  .cancelButton {
+    width: 100%;
+    padding: 0.75rem;
+  }
 }

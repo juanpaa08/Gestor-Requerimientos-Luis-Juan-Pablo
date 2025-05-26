@@ -15,6 +15,9 @@
   max-width: 400px;
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  max-height: 85vh; /* Limita la altura máxima */
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 }
 
@@ -23,6 +26,7 @@
   padding: 1.5rem;
   text-align: center;
   color: #fff;
+  flex-shrink: 0; /* Evita que la cabecera se comprima */
 }
 
 .headerIcon {
@@ -42,12 +46,21 @@
   font-weight: 500;
 }
 
+.formWrapper {
+  overflow-y: auto; /* Permite desplazamiento vertical */
+  max-height: calc(85vh - 180px); /* Ajusta según la altura del header, buttonContainer y footer */
+  flex: 1; /* Permite que crezca dentro del espacio disponible */
+}
+
 form {
   padding: 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem; /* Añadimos gap para mejor espaciado */
 }
 
 .formGroup {
-  margin-bottom: 1.25rem;
+  margin-bottom: 0; /* Eliminamos margin-bottom ya que usamos gap */
 }
 
 .label {
@@ -88,10 +101,16 @@ form {
   background-size: 16px;
 }
 
+.buttonContainer {
+  padding: 1rem 2rem;
+  background-color: #fff;
+  border-top: 1px solid #e0e6ed; /* Línea separadora */
+  flex-shrink: 0; /* Evita que se comprima */
+}
+
 .button {
   width: 100%;
   padding: 0.75rem;
-  margin-top: 0.5rem;
   background-color: #27ae60;
   color: #fff;
   border: none;
@@ -112,6 +131,7 @@ form {
   padding: 1rem 0;
   background: #f7f9fc;
   border-top: 1px solid #e0e6ed;
+  flex-shrink: 0; /* Evita que se comprima */
 }
 
 .registerLink {

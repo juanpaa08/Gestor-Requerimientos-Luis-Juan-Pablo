@@ -28,6 +28,13 @@ CREATE TABLE `Usuarios` (
 ALTER TABLE `Proyectos`
 ADD COLUMN `status` ENUM('Pendiente', 'En Progreso', 'Completado') DEFAULT 'Pendiente';
 
+-- Agregar el campo temp_password_expires a la tabla usuarios:
+ALTER TABLE Usuarios ADD COLUMN temp_password_expires TIMESTAMP NULL;
+
+INSERT INTO Usuarios (username, password, role) VALUES ('administrador@example.com', '$2b$10$zoEtvoDyl8XDUX0ulB7mHeJcGb04VVvPV3LG20tBAqAjDRYkrLHhm', 'Admin');
+
+select * from usuarios;
+
 -- Insertar usuarios de prueba (contraseñas hasheadas: 123456)
 INSERT INTO `Usuarios` (`username`, `password`, `role`)
 VALUES 

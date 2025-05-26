@@ -11,6 +11,7 @@ const pool = mysql.createPool({
   database: 'gestor_requerimientos'
 });
 
+
 // Obtener todos los requerimientos de un proyecto
 router.get('/:idProyecto', authenticateToken, async (req, res) => {
   try {
@@ -62,4 +63,20 @@ router.delete('/:id', authenticateToken, async (req, res) => {
   }
 });
 
-module.exports = router;
+module.exports = (connection) => {
+  router.get('/:idProyecto', (req, res) => {
+    const { idProyecto } = req.params;
+    connection.query(
+      'SELECT * FROM Requerimientos WHERE id_proyecto = ?',
+      [idProyecto],
+      (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+      }
+    );
+  });
+
+  // Otras rutas aquí...
+
+  return router;
+};

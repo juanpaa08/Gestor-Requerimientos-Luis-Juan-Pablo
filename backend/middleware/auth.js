@@ -1,20 +1,18 @@
+// backend/middleware/auth.js
 const jwt = require('jsonwebtoken');
 
-function authenticateToken(req, res, next) {
+const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Bearer <token>
+  if (!authHeader) return res.status(401).json({ error: 'No autorizado' });
 
-  if (!token) {
-    return res.status(401).json({ error: 'Token requerido' });
-  }
-
-  jwt.verify(token, 'tu_secreto_seguro', (err, user) => { // Cambiado a valor fijo para coincidir con server.js
-    if (err) {
-      return res.status(403).json({ error: 'Token inválido' });
-    }
+  const token = authHeader.split(' ')[1];
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET || 'tu_secreto_seguro');
     req.user = user;
     next();
-  });
-}
+  } catch (err) {
+    res.status(403).json({ error: 'Token inválido' });
+  }
+};
 
 module.exports = authenticateToken;

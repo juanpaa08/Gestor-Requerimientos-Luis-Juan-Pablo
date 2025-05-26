@@ -1,4 +1,4 @@
-// src/components/Navbar/Navbar.jsx
+// src/components/Navbar/Navbar.jsx (actualizado)
 import React, { useContext, useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Settings as SettingsIcon, LogOut } from 'lucide-react';
@@ -17,7 +17,6 @@ export default function Navbar() {
     nav('/login');
   };
 
-  // Cierra el dropdown si se hace click fuera
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -70,15 +69,19 @@ export default function Navbar() {
           >
             Proyectos
           </Link>
+          {user.role === 'Admin' && (
+            <Link
+              to="/user-management"
+              className={`${styles.link} ${isActive('/user-management') ? styles.active : ''}`}
+            >
+              Gestión de Usuarios
+            </Link>
+          )}
         </div>
       ) : (
         <div className={styles.right}>
-          <Link to="/login" className={styles.link}>
-            Login
-          </Link>
-          <Link to="/register" className={styles.link}>
-            Registro
-          </Link>
+          <Link to="/login" className={styles.link}>Login</Link>
+          <Link to="/register" className={styles.link}>Registro</Link>
         </div>
       )}
     </nav>

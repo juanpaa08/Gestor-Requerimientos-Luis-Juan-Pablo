@@ -13,3 +13,5 @@ CREATE TABLE Requerimientos (
   FOREIGN KEY (id_proyecto) REFERENCES Proyectos(id_proyecto) ON DELETE CASCADE,
   FOREIGN KEY (asignado_a) REFERENCES Usuarios(id_usuario)
 );
+
+select * from proyectos;

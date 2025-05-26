@@ -6,7 +6,13 @@
     "start": "node server.js",
     "test": "jest"
   },
-  "keywords": ["backend", "express", "mysql", "jwt", "authentication"],
+  "keywords": [
+    "backend",
+    "express",
+    "mysql",
+    "jwt",
+    "authentication"
+  ],
   "author": "Luis Arrieta y Juan Pablo Cambronero",
   "license": "ISC",
   "description": "Backend para el sistema gestor de requerimientos",
@@ -16,7 +22,8 @@
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
-    "mysql2": "^3.14.1"
+    "mysql2": "^3.14.1",
+    "nodemailer": "^7.0.3"
   },
   "devDependencies": {
     "jest": "^29.7.0"

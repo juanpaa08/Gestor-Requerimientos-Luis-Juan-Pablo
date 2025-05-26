@@ -6,14 +6,15 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5); /* Oscurecido un poco más para énfasis */
+  height: 100vh; /* Aseguramos que ocupe toda la altura de la ventana gráfica */
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1rem;
   z-index: 1000;
   pointer-events: none;
+  box-sizing: border-box;
 }
 
 /* Tarjeta emergente que SÍ recibe eventos */
@@ -21,37 +22,48 @@
   pointer-events: auto;
   background: #fff;
   width: 100%;
-  max-width: 520px; /* Ligeramente más ancha que ProjectForm */
-  border-radius: 14px; /* Bordes más redondeados */
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.15); /* Sombra más pronunciada */
-  overflow: hidden;
+  max-width: 520px;
+  border-radius: 14px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.15);
+  max-height: 85vh; /* Limita la altura máxima */
   display: flex;
   flex-direction: column;
   z-index: 1001;
+  box-sizing: border-box;
 }
 
 /* Cabecera con degradado en tonos verdes */
 .header {
-  background: linear-gradient(135deg, #27ae60, #2ecc71); /* Verde en lugar de azul */
-  padding: 1.8rem; /* Un poco más de padding */
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  padding: 1.8rem;
   text-align: center;
+  flex-shrink: 0; /* Evita que la cabecera se comprima */
 }
+
 .headerIcon {
   color: #fff;
   margin-bottom: 0.6rem;
 }
+
 .title {
   margin: 0;
-  font-size: 1.9rem; /* Título ligeramente más grande */
+  font-size: 1.9rem;
   color: #fff;
+}
+
+/* Contenedor del formulario con desplazamiento */
+.formWrapper {
+  overflow-y: auto; /* Permite desplazamiento vertical */
+  max-height: calc(85vh - 140px); /* Ajusta según la altura del header y buttonContainer */
+  flex: 1; /* Permite que crezca dentro del espacio disponible */
 }
 
 /* Formulario interior */
 .form {
-  padding: 1.8rem 2.2rem; /* Más espacio interno */
+  padding: 1.8rem 2.2rem;
   display: flex;
   flex-direction: column;
-  gap: 1.2rem; /* Mayor separación entre campos */
+  gap: 1rem; /* Reducimos el gap para ahorrar espacio */
 }
 
 /* Grupos de campos */
@@ -65,6 +77,7 @@
   display: flex;
   gap: 1.2rem;
 }
+
 @media (max-width: 480px) {
   .dateRow {
     flex-direction: column;
@@ -82,20 +95,23 @@
 .input,
 .textarea {
   width: 100%;
-  padding: 0.75rem 1.1rem; /* Padding ajustado */
+  padding: 0.75rem 1.1rem;
   font-size: 1rem;
   border: 1px solid #ccd1d9;
-  border-radius: 8px; /* Bordes más redondeados */
-  background: #f9fbfc; /* Fondo ligeramente diferente */
+  border-radius: 8px;
+  background: #f9fbfc;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
+
 .textarea {
   resize: vertical;
+  min-height: 60px; /* Reducimos la altura mínima para ahorrar espacio */
 }
+
 .input:focus,
 .textarea:focus {
   outline: none;
-  border-color: #27ae60; /* Verde en lugar de azul */
+  border-color: #27ae60;
   box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.2);
 }
 
@@ -112,6 +128,7 @@
   cursor: pointer;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
+
 .select:focus {
   outline: none;
   border-color: #27ae60;
@@ -119,18 +136,21 @@
 }
 
 /* Botones */
-.buttons {
+.buttonContainer {
   display: flex;
   justify-content: flex-end;
   gap: 0.85rem;
-  margin-top: 0.75rem;
+  padding: 1rem 2.2rem;
+  background-color: #fff;
+  border-top: 1px solid #e0e6ed; /* Línea separadora */
+  flex-shrink: 0; /* Evita que se comprima */
 }
 
 /* Botón crear/guardar */
 .submitButton {
-  background-color: #27ae60; /* Verde en lugar de azul */
+  background-color: #27ae60;
   color: #fff;
-  padding: 0.85rem 1.75rem; /* Botón más grande */
+  padding: 0.85rem 1.75rem;
   border: none;
   border-radius: 8px;
   font-size: 1rem;
@@ -138,6 +158,7 @@
   cursor: pointer;
   transition: background-color 0.2s, transform 0.1s;
 }
+
 .submitButton:hover {
   background-color: #219150;
   transform: translateY(-2px);
@@ -157,10 +178,31 @@
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s;
 }
+
 .cancelIcon {
   color: #e74c3c;
 }
+
 .cancelButton:hover {
   background-color: #e74c3c;
   color: #fff;
+}
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 480px) {
+  .card {
+    max-width: 100%;
+    margin: 0 1rem;
+  }
+
+  .buttonContainer {
+    flex-direction: column;
+    padding: 1rem;
+  }
+
+  .submitButton,
+  .cancelButton {
+    width: 100%;
+    padding: 0.85rem;
+  }
 }
