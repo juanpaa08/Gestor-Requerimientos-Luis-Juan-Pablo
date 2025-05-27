@@ -1,10 +1,11 @@
-// backend/server.js
 require('dotenv').config();
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { sendTempPasswordEmail } = require('./utils/email.js'); // Importamos la función de email
+const crypto = require('crypto'); // Para generar contraseñas aleatorias
 const app = express();
 
 // Configuración de la conexión a MySQL
@@ -23,11 +24,9 @@ connection.connect((err) => {
   console.log('Conectado a MySQL');
 });
 
-// Importar routers después de definir connection
+// Importar routers (sin authRouter, ya que lo manejaremos aquí)
 const requerimientosRouter = require('./routes/requerimientos')(connection);
 const usersRouter = require('./routes/users')(connection);
-const authRouter = require('./routes/auth')(connection);
-console.log('authRouter:', authRouter);
 const authenticateToken = require('./middleware/auth');
 
 // Configuración CORS
@@ -37,60 +36,123 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
-app.use('/api/auth', authRouter);
 app.use('/api/requerimientos', requerimientosRouter);
 app.use('/api/users', usersRouter);
 
 const JWT_SECRET = process.env.JWT_SECRET || 'tu_secreto_seguro';
 
-// Ruta para login (actualizada para validar el rol)
+// Función para generar una contraseña temporal aleatoria
+function generateTempPassword() {
+  const length = 10;
+  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const numbers = '0123456789';
+  const others = 'abcdefghijklmnopqrstuvwxyz!@#$%^&*';
+
+  const getRandomChar = (str) => str[Math.floor(Math.random() * str.length)];
+  const password = [
+    getRandomChar(uppercase),
+    getRandomChar(numbers),
+    ...crypto.randomBytes(Math.max(0, length - 2)).toString('base64').slice(0, length - 2).replace(/[^a-zA-Z0-9]/g, '')
+  ].sort(() => Math.random() - 0.5).join('').slice(0, length);
+
+  return password;
+}
+
+// Ruta para login
 app.post('/api/login', (req, res) => {
-  const { username, password, role } = req.body; // Añadimos 'role' en la destructuración
+  const { username, password, role } = req.body;
 
-  connection.query(
-    'SELECT * FROM Usuarios WHERE username = ? AND role = ?', // Filtramos por ambos campos
-    [username, role],
-    async (err, results) => {
-      if (err) {
-        console.error('Error en la consulta:', err);
-        return res.status(500).json({ error: 'Error en el servidor' });
-      }
+  try {
+    console.log('Procesando login para:', username, 'con rol:', role); // Depuración
+    connection.query(
+      'SELECT * FROM Usuarios WHERE username = ? AND role = ?', // Filtramos por ambos campos
+      [username, role],
+      async (err, results) => {
+        if (err) {
+          console.error('Error en la consulta SQL:', err);
+          return res.status(500).json({ error: 'Error en el servidor al consultar usuario' });
+        }
 
-      if (results.length === 0) {
-        return res.status(401).json({ error: 'Usuario no encontrado o rol incorrecto' });
-      }
+        console.log('Resultado de la consulta:', results); // Depuración
+        if (results.length === 0) {
+          return res.status(401).json({ error: 'Usuario no encontrado o rol incorrecto' });
+        }
 
-      const user = results[0];
+        const user = results[0];
+        console.log('Usuario encontrado:', user); // Depuración
 
-      // Verificar contraseña
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return res.status(401).json({ error: 'Contraseña incorrecta' });
-      }
+        // Verificar contraseña temporal (si aplica)
+        if (user.temp_password_expires && new Date() > new Date(user.temp_password_expires)) {
+          console.log('Contraseña temporal expirada para:', user.username); // Depuración
+          try {
+            // Generar una nueva contraseña temporal aleatoria
+            const tempPassword = generateTempPassword();
+            const hashedTempPassword = await bcrypt.hash(tempPassword, 10);
+            const newExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 horas más
 
-      // Verificar expiración de contraseña temporal
-      if (user.temp_password_expires && new Date() > new Date(user.temp_password_expires)) {
-        return res.status(401).json({ error: 'Contraseña temporal expirada' });
-      }
+            console.log('Nueva contraseña generada:', tempPassword); // Depuración
+            console.log('Nueva fecha de expiración:', newExpiresAt); // Depuración
 
-      // Generar token JWT (incluyendo el rol de la BD)
-      const token = jwt.sign(
-        { 
-          id: user.id_usuario, 
+            // Actualizar la contraseña temporal y la fecha de expiración en la base de datos
+            await new Promise((resolve, reject) => {
+              connection.query(
+                'UPDATE Usuarios SET password = ?, temp_password_expires = ? WHERE id_usuario = ?',
+                [hashedTempPassword, newExpiresAt, user.id_usuario],
+                (err, result) => {
+                  if (err) {
+                    console.error('Error al actualizar la contraseña temporal:', err);
+                    reject(new Error('Error al actualizar la contraseña en la base de datos: ' + err.message));
+                  } else {
+                    console.log('Contraseña y fecha actualizadas en la base de datos:', result); // Depuración
+                    resolve();
+                  }
+                }
+              );
+            });
+
+            // Enviar la nueva contraseña temporal por email
+            console.log('Intentando enviar email a:', user.username); // Depuración
+            await sendTempPasswordEmail(user.username, tempPassword);
+            console.log('Email enviado exitosamente a:', user.username); // Depuración
+            return res.status(401).json({
+              error: 'Contraseña temporal expirada. Se ha enviado una nueva a tu email.',
+            });
+          } catch (error) {
+            console.error('Error en el proceso de regeneración de contraseña:', error);
+            return res.status(500).json({
+              error: 'Contraseña temporal expirada, pero falló el proceso: ' + error.message,
+            });
+          }
+        }
+
+        // Verificar contraseña
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+          return res.status(401).json({ error: 'Contraseña incorrecta' });
+        }
+
+        // Generar token JWT (incluyendo el rol de la BD)
+        const token = jwt.sign(
+          { 
+            id: user.id_usuario, 
+            username: user.username, 
+            role: user.role 
+          },
+          JWT_SECRET,
+          { expiresIn: '1h' }
+        );
+
+        res.json({ 
           username: user.username, 
-          role: user.role // Usamos el rol de la BD
-        },
-        JWT_SECRET,
-        { expiresIn: '1h' }
-      );
-
-      res.json({ 
-        username: user.username, 
-        role: user.role, 
-        token 
-      });
-    }
-  );
+          role: user.role, 
+          token 
+        });
+      }
+    );
+  } catch (err) {
+    console.error('Error general en login:', err);
+    res.status(500).json({ error: 'Error al iniciar sesión' });
+  }
 });
 
 // Rutas para proyectos

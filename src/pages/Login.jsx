@@ -1,4 +1,3 @@
-// src/pages/Login.jsx
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
@@ -42,7 +41,7 @@ export default function Login() {
 
         {error && <p className={styles.errorMessage}>{error}</p>}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.formGroup}>
             <label htmlFor="username" className={styles.label}>
               <User size={18} className={styles.icon} /> Usuario

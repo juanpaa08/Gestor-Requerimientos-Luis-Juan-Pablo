@@ -27,6 +27,7 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  min-height: 0; /* Permite que el contenedor se ajuste */
 }
 
 /* Header degradado */
@@ -58,11 +59,14 @@
 }
 
 /* Formulario */
-form {
+.form {
   padding: 1.5rem 2rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  flex: 1; /* Ocupa el espacio disponible */
+  overflow-y: auto; /* Desplazamiento vertical si el contenido excede */
+  max-height: calc(100vh - 200px); /* Altura máxima ajustada */
 }
 
 /* Grupo de campo */
@@ -89,7 +93,6 @@ form {
 .input,
 .select {
   width: 100%;
-  /* Ya no hace falta max-width aquí, hereda el width del form */
   padding: 0.65rem 1rem;
   font-size: 1rem;
   border: 1px solid #ccd1d9;
@@ -134,10 +137,10 @@ form {
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s, transform 0.1s;
-  align-self: center;
-  margin-top: 0.5rem;
+  margin-top: auto; /* Ancla el botón al final */
 }
 
+/* Hover del botón */
 .button:hover {
   background-color: #2471a3;
   transform: translateY(-2px);
@@ -165,5 +168,8 @@ form {
 @media (max-width: 360px) {
   .card {
     margin: 0 1rem;
+  }
+  .form {
+    max-height: calc(100vh - 250px); /* Ajuste para pantallas más pequeñas */
   }
 }
