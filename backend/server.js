@@ -39,6 +39,10 @@ app.use(express.json());
 app.use('/api/requerimientos', requerimientosRouter);
 app.use('/api/users', usersRouter);
 
+// Nuevo router para tareas
+const tareasRouter = require('./routes/tareas')(connection);
+app.use('/api/tareas', tareasRouter);
+
 const JWT_SECRET = process.env.JWT_SECRET || 'tu_secreto_seguro';
 
 // Función para generar una contraseña temporal aleatoria

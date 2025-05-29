@@ -76,6 +76,17 @@ module.exports = (connection) => {
     });
   });
 
+// Ruta para listar todos los usuarios (sin restricción de Admin)
+router.get('/list-all', authenticateToken, (req, res) => {
+  connection.query('SELECT id_usuario, username FROM Usuarios', (err, results) => {
+    if (err) {
+      console.error('Error al listar usuarios:', err);
+      return res.status(500).json({ error: 'Error al listar usuarios' });
+    }
+    res.json(results);
+  });
+});
+
   // Ruta para actualizar un usuario (nueva)
   router.put('/update/:id', authenticateToken, (req, res) => {
     if (req.user.role !== 'Admin') {
