@@ -2,19 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import RequirementCard from '../components/RequirementCard/RequirementCard';
 import RequirementForm from '../components/RequirementForm/RequirementForm';
-import TaskForm from '../components/TaskForm/TaskForm'; // Nuevo
+import TaskForm from '../components/TaskForm/TaskForm';
+import ReportForm from '../components/ReportForm/ReportForm'; // Importamos el nuevo componente
 import { fetchRequerimientos, saveRequerimiento, deleteRequerimiento } from '../services/requerimientos';
-import { fetchTareas, saveTarea, deleteTarea } from '../services/tareas'; // Nuevo
+import { fetchTareas, saveTarea, deleteTarea } from '../services/tareas';
 import styles from './ProjectDetails.module.css';
 
 export default function ProjectDetails() {
   const { idProyecto } = useParams();
   const [requerimientos, setRequerimientos] = useState([]);
-  const [tareas, setTareas] = useState([]); // Nuevo
-  const [mostrarFormularioReq, setMostrarFormularioReq] = useState(false); // Renombrado para claridad
-  const [mostrarFormularioTarea, setMostrarFormularioTarea] = useState(false); // Nuevo
+  const [tareas, setTareas] = useState([]);
+  const [mostrarFormularioReq, setMostrarFormularioReq] = useState(false);
+  const [mostrarFormularioTarea, setMostrarFormularioTarea] = useState(false);
+  const [mostrarFormularioReporte, setMostrarFormularioReporte] = useState(false); // Estado para el formulario de reportes
   const [requerimientoEditando, setRequerimientoEditando] = useState(null);
-  const [tareaEditando, setTareaEditando] = useState(null); // Nuevo
+  const [tareaEditando, setTareaEditando] = useState(null);
   const [formDataReq, setFormDataReq] = useState({
     id_proyecto: idProyecto,
     titulo: '',
@@ -24,7 +26,7 @@ export default function ProjectDetails() {
     estado: 'Pendiente',
     asignado_a: null,
   });
-  const [formDataTarea, setFormDataTarea] = useState({ // Nuevo
+  const [formDataTarea, setFormDataTarea] = useState({
     id_proyecto: idProyecto,
     descripcion: '',
     prioridad: 'Media',
@@ -40,7 +42,7 @@ export default function ProjectDetails() {
         console.error(err);
         setRequerimientos([]);
       });
-    fetchTareas(idProyecto) // Nuevo
+    fetchTareas(idProyecto)
       .then((data) => setTareas(data))
       .catch((err) => {
         console.error(err);
@@ -53,7 +55,7 @@ export default function ProjectDetails() {
     setFormDataReq((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleChangeTarea = (e) => { // Nuevo
+  const handleChangeTarea = (e) => {
     const { name, value } = e.target;
     setFormDataTarea((prev) => ({ ...prev, [name]: value }));
   };
@@ -92,7 +94,7 @@ export default function ProjectDetails() {
     }
   };
 
-  const handleSubmitTarea = async (e) => { // Nuevo
+  const handleSubmitTarea = async (e) => {
     e.preventDefault();
     try {
       const saved = await saveTarea(formDataTarea, tareaEditando?.id_tarea);
@@ -130,7 +132,7 @@ export default function ProjectDetails() {
     setRequerimientos((prev) => prev.filter((r) => r.id_requerimiento !== id));
   };
 
-  const handleDeleteTarea = async (id) => { // Nuevo
+  const handleDeleteTarea = async (id) => {
     await deleteTarea(id);
     setTareas((prev) => prev.filter((t) => t.id_tarea !== id));
   };
@@ -148,7 +150,7 @@ export default function ProjectDetails() {
         >
           + Crear Requerimiento
         </button>
-        <button // Nuevo
+        <button
           className={styles.primaryButton}
           onClick={() => {
             setTareaEditando(null);
@@ -156,6 +158,12 @@ export default function ProjectDetails() {
           }}
         >
           + Crear Tarea
+        </button>
+        <button
+          className={styles.primaryButton}
+          onClick={() => setMostrarFormularioReporte(true)} // Botón para abrir el formulario de reportes
+        >
+          Generar Reporte
         </button>
       </header>
       {mostrarFormularioReq ? (
@@ -166,13 +174,18 @@ export default function ProjectDetails() {
           onCancel={() => setMostrarFormularioReq(false)}
           isEditing={Boolean(requerimientoEditando)}
         />
-      ) : mostrarFormularioTarea ? ( // Nuevo
+      ) : mostrarFormularioTarea ? (
         <TaskForm
           formData={formDataTarea}
           onChange={handleChangeTarea}
           onSubmit={handleSubmitTarea}
           onCancel={() => setMostrarFormularioTarea(false)}
           isEditing={Boolean(tareaEditando)}
+        />
+      ) : mostrarFormularioReporte ? (
+        <ReportForm
+          idProyecto={idProyecto}
+          onCancel={() => setMostrarFormularioReporte(false)} // Pasamos la función para cerrar el formulario
         />
       ) : (
         <>
@@ -183,7 +196,7 @@ export default function ProjectDetails() {
               requerimientos.map((r) => (
                 <RequirementCard
                   key={r.id_requerimiento}
-                  id={r.id_proyecto} // Asegúrate de que sea el ID correcto
+                  id={r.id_proyecto}
                   title={r.titulo}
                   description={r.descripcion}
                   status={r.estado}
@@ -205,7 +218,7 @@ export default function ProjectDetails() {
               ))
             )}
           </div>
-          <section> {/* Nueva sección para tareas */}
+          <section>
             <header className={styles.header}>
               <h2 className={styles.headerTitle}>Tareas del Proyecto</h2>
             </header>
