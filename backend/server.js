@@ -28,6 +28,7 @@ connection.connect((err) => {
 const requerimientosRouter = require('./routes/requerimientos')(connection);
 const usersRouter = require('./routes/users')(connection);
 const authenticateToken = require('./middleware/auth');
+const reportsRouter = require('./routes/reports')(connection); // Nuevo
 
 // Configuración CORS
 app.use(cors({
@@ -38,6 +39,12 @@ app.use(cors({
 app.use(express.json());
 app.use('/api/requerimientos', requerimientosRouter);
 app.use('/api/users', usersRouter);
+app.use('/api/reports', reportsRouter);
+
+// Nuevo router para tareas
+const tareasRouter = require('./routes/tareas')(connection);
+app.use('/api/tareas', tareasRouter);
+
 
 const JWT_SECRET = process.env.JWT_SECRET || 'tu_secreto_seguro';
 
