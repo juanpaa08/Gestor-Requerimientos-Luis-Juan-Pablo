@@ -45,7 +45,6 @@ app.use('/api/reports', reportsRouter);
 const tareasRouter = require('./routes/tareas')(connection);
 app.use('/api/tareas', tareasRouter);
 
-
 const JWT_SECRET = process.env.JWT_SECRET || 'tu_secreto_seguro';
 
 // Función para generar una contraseña temporal aleatoria
@@ -65,7 +64,7 @@ function generateTempPassword() {
   return password;
 }
 
-// Ruta para login
+// Ruta para login con manejo de intentos fallidos
 app.post('/api/login', (req, res) => {
   const { username, password, role } = req.body;
 
@@ -87,6 +86,15 @@ app.post('/api/login', (req, res) => {
 
         const user = results[0];
         console.log('Usuario encontrado:', user); // Depuración
+
+        // Verificar si la cuenta está bloqueada
+        const now = new Date();
+        if (user.locked_until && new Date(user.locked_until) > now) {
+          const remainingTime = Math.ceil((new Date(user.locked_until) - now) / 1000 / 60); // Minutos restantes
+          return res.status(403).json({
+            error: `Cuenta bloqueada. Intenta de nuevo en ${remainingTime} minutos o contacta al Super Admin.`,
+          });
+        }
 
         // Verificar contraseña temporal (si aplica)
         if (user.temp_password_expires && new Date() > new Date(user.temp_password_expires)) {
@@ -135,8 +143,55 @@ app.post('/api/login', (req, res) => {
         // Verificar contraseña
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-          return res.status(401).json({ error: 'Contraseña incorrecta' });
+          // Incrementar el contador de intentos fallidos
+          const newAttempts = user.failed_attempts + 1; // Cambiado a failed_attempts
+          let lockedUntil = null;
+
+          if (newAttempts >= 3) {
+            // Bloquear la cuenta por 30 minutos
+            lockedUntil = new Date(Date.now() + 30 * 60 * 1000); // 30 minutos
+            console.log(`Cuenta bloqueada para ${user.username} hasta:`, lockedUntil);
+          }
+
+          await new Promise((resolve, reject) => {
+            connection.query(
+              'UPDATE Usuarios SET failed_attempts = ?, locked_until = ? WHERE id_usuario = ?', // Cambiado a failed_attempts
+              [newAttempts, lockedUntil, user.id_usuario],
+              (err, result) => {
+                if (err) {
+                  console.error('Error al actualizar intentos fallidos:', err);
+                  reject(new Error('Error al actualizar intentos fallidos: ' + err.message));
+                } else {
+                  resolve();
+                }
+              }
+            );
+          });
+
+          if (newAttempts >= 3) {
+            return res.status(403).json({
+              error: 'Cuenta bloqueada por demasiados intentos fallidos. Intenta de nuevo en 30 minutos.',
+            });
+          }
+
+          return res.status(401).json({ error: `Contraseña incorrecta. Intento ${newAttempts}/3.` });
         }
+
+        // Login exitoso: Restablecer intentos fallidos y desbloquear
+        await new Promise((resolve, reject) => {
+          connection.query(
+            'UPDATE Usuarios SET failed_attempts = 0, locked_until = NULL WHERE id_usuario = ?', // Cambiado a failed_attempts
+            [user.id_usuario],
+            (err, result) => {
+              if (err) {
+                console.error('Error al restablecer intentos fallidos:', err);
+                reject(new Error('Error al restablecer intentos fallidos: ' + err.message));
+              } else {
+                resolve();
+              }
+            }
+          );
+        });
 
         // Generar token JWT (incluyendo el rol de la BD)
         const token = jwt.sign(
@@ -159,6 +214,40 @@ app.post('/api/login', (req, res) => {
   } catch (err) {
     console.error('Error general en login:', err);
     res.status(500).json({ error: 'Error al iniciar sesión' });
+  }
+});
+
+// Nueva ruta para desbloquear usuarios (Super Admin)
+app.post('/api/users/unlock/:id', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+
+  // Verificar que el usuario autenticado sea un Super Admin
+  if (req.user.role !== 'Super Admin') {
+    return res.status(403).json({ error: 'Solo un Super Admin puede desbloquear cuentas.' });
+  }
+
+  try {
+    await new Promise((resolve, reject) => {
+      connection.query(
+        'UPDATE Usuarios SET failed_attempts = 0, locked_until = NULL WHERE id_usuario = ?', // Cambiado a failed_attempts
+        [id],
+        (err, result) => {
+          if (err) {
+            console.error('Error al desbloquear usuario:', err);
+            reject(new Error('Error al desbloquear usuario: ' + err.message));
+          }
+          if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Usuario no encontrado.' });
+          }
+          resolve();
+        }
+      );
+    });
+
+    res.json({ message: 'Cuenta desbloqueada exitosamente.' });
+  } catch (err) {
+    console.error('Error al desbloquear usuario:', err);
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -205,6 +294,13 @@ app.delete('/api/proyectos/:id', authenticateToken, (req, res) => {
     if (results.affectedRows === 0) return res.status(404).json({ error: 'Proyecto no encontrado' });
     res.json({ message: 'Proyecto eliminado' });
   });
+});
+
+// Manejadores de errores y rutas no encontradas
+app.use((req, res) => res.status(404).json({ error: 'Ruta no encontrada' }));
+app.use((err, req, res, next) => {
+  console.error('Error interno:', err);
+  res.status(500).json({ error: 'Error interno del servidor' });
 });
 
 const PORT = 5000;
