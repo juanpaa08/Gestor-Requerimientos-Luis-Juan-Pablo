@@ -37,6 +37,10 @@ select * from usuarios;
 select * from proyectos;
 select * from tareas;
 
+ALTER TABLE Usuarios
+  ADD COLUMN failed_attempts INT      NOT NULL DEFAULT 0,
+  ADD COLUMN locked_until   DATETIME NULL;
+
 -- Insertar usuarios de prueba (contraseñas hasheadas: 123456)
 INSERT INTO `Usuarios` (`username`, `password`, `role`)
 VALUES 
